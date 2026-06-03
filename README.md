@@ -17,14 +17,6 @@ Every folder is a session. Every file runs. Every README explains what I built, 
 
 ---
 
-## Why this repo exists
-
-Most AI tutorials stop at "here's the architecture." I wanted to go further — build it, train it, understand every line.
-
-This repo is my learning journal. By the end I'll have gone from implementing attention heads by hand to training and deploying real models. The goal isn't to copy tutorials — it's to build intuition for *why* each piece exists.
-
----
-
 ## How to use this repo
 
 Each session folder is self-contained:
