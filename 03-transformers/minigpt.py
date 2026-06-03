@@ -10,6 +10,7 @@ head_dim    = 16
 
 # --- Step 1 ---
 class TokenAndPositionalEmbedding(nn.Module):
+    """Combines learned token embeddings with learned positional embeddings."""
     def __init__(self, vocab_size, d_model, max_seq_len):
         super().__init__()
         self.token_emb = nn.Embedding(vocab_size, d_model)
@@ -22,6 +23,7 @@ class TokenAndPositionalEmbedding(nn.Module):
 
 # --- Step 2 ---
 class SingleHeadAttention(nn.Module):
+    """Scaled dot-product attention with causal mask for a single head."""
     def __init__(self, d_model, head_dim):
         super().__init__()
         self.q = nn.Linear(d_model, head_dim, bias=False)
@@ -44,43 +46,37 @@ class SingleHeadAttention(nn.Module):
         output = torch.matmul(weights, V)
 
         return output, weights
-    
+
 
 # --- Step 3 ---
 
 class MultiHeadAttention(nn.Module):
+    """Runs attention across multiple heads in parallel and projects output."""
     def __init__(self, d_model, num_heads):
         super().__init__()
         assert d_model % num_heads == 0, "d_model must be divisible by num_heads"
-        
+
         self.num_heads = num_heads
         self.head_dim  = d_model // num_heads
-        
+
         self.heads = nn.ModuleList([
             SingleHeadAttention(d_model, self.head_dim)
             for _ in range(num_heads)
         ])
-        
+
         self.output_proj = nn.Linear(d_model, d_model)
 
     def forward(self, x):
-        # run all heads in parallel, collect outputs
         head_outputs = [head(x)[0] for head in self.heads]
-        # each head output: (batch, seq_len, head_dim)
-        
-        # concatenate along last dimension
         concat = torch.cat(head_outputs, dim=-1)
-        # (batch, seq_len, num_heads * head_dim) = (batch, seq_len, d_model)
-        
         output = self.output_proj(concat)
-        # (batch, seq_len, d_model)
-        
         return output
-    
+
 
 # --- Step 4 ---
 
 class FeedForward(nn.Module):
+    """Two-layer MLP with GELU activation applied position-wise."""
     def __init__(self, d_model, ff_dim):
         super().__init__()
         self.net = nn.Sequential(
@@ -91,11 +87,12 @@ class FeedForward(nn.Module):
 
     def forward(self, x):
         return self.net(x)
-    
+
 
 # --- Step 5 ---
 
 class TransformerBlock(nn.Module):
+    """One transformer layer: multi-head attention and feed-forward with residual connections and LayerNorm."""
     def __init__(self, d_model, num_heads, ff_dim):
         super().__init__()
         self.attention = MultiHeadAttention(d_model, num_heads)
@@ -104,27 +101,24 @@ class TransformerBlock(nn.Module):
         self.norm2     = nn.LayerNorm(d_model)
 
     def forward(self, x):
-        # attention + residual + norm
         x = self.norm1(x + self.attention(x))
-        
-        # FFN + residual + norm
         x = self.norm2(x + self.ff(x))
-        
         return x
 
 
 # --- Step 6 ---
 
 class MiniGPT(nn.Module):
+    """GPT-style language model stacking transformer blocks over token and positional embeddings."""
     def __init__(self, vocab_size, d_model, max_seq_len, num_heads, ff_dim, num_layers):
         super().__init__()
         self.embedding = TokenAndPositionalEmbedding(vocab_size, d_model, max_seq_len)
-        
+
         self.blocks = nn.Sequential(*[
             TransformerBlock(d_model, num_heads, ff_dim)
             for _ in range(num_layers)
         ])
-        
+
         self.norm     = nn.LayerNorm(d_model)
         self.out_proj = nn.Linear(d_model, vocab_size)
 
@@ -139,13 +133,11 @@ class MiniGPT(nn.Module):
 # --- step 7 ---
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-# real text input
 sentences = [
     "the transformer architecture changed everything",
     "attention is all you need",
 ]
 
-# tokenize
 encoded = tokenizer(
     sentences,
     padding=True,
@@ -157,7 +149,6 @@ encoded = tokenizer(
 input_ids = encoded["input_ids"]
 print(f"Tokenized shape : {input_ids.shape}")
 
-# rebuild model with bert vocab size
 model = MiniGPT(
     vocab_size  = tokenizer.vocab_size,
     d_model     = 64,
@@ -167,7 +158,6 @@ model = MiniGPT(
     num_layers  = 4
 )
 
-# forward pass
 logits = model(input_ids)
 predicted_ids = logits.argmax(dim=-1)
 predicted_tokens = [tokenizer.decode(ids) for ids in predicted_ids]
@@ -179,56 +169,3 @@ for i, tokens in enumerate(predicted_tokens):
     print(f"  Sentence {i+1}: {tokens}")
 
 print(f"\nTotal parameters: {sum(p.numel() for p in model.parameters()):,}")
-
-
-# --- test ---
-emb_layer = TokenAndPositionalEmbedding(vocab_size, d_model, max_seq_len)
-x = torch.randint(0, vocab_size, (2, 10))
-emb_output = emb_layer(x)
-
-# output = emb_layer(x)
-# print(f"Input shape  : {x.shape}")
-# print(f"Output shape : {output.shape}")
-
-attention = SingleHeadAttention(d_model=64, head_dim=16)
-out, weights = attention(emb_output)
-
-# print(f"Attention output shape  : {out.shape}")
-# print(f"Attention weights shape : {weights.shape}")
-# print(f"\nWeights for sentence 1:")
-# print(torch.round(weights[0], decimals=3))
-
-mha = MultiHeadAttention(d_model=64, num_heads=4)
-mha_out = mha(emb_output)
-
-# print(f"MHA input shape  : {emb_output.shape}")
-# print(f"MHA output shape : {mha_out.shape}")
-
-ff = FeedForward(d_model=64, ff_dim=256)
-ff_out = ff(mha_out)
-
-# print(f"FFN input shape  : {mha_out.shape}")
-# print(f"FFN output shape : {ff_out.shape}")
-
-block = TransformerBlock(d_model=64, num_heads=4, ff_dim=256)
-block_out = block(emb_output)
-
-# print(f"Block input shape  : {emb_output.shape}")
-# print(f"Block output shape : {block_out.shape}")
-
-
-# model = MiniGPT(
-#     vocab_size  = 1000,
-#     d_model     = 64,
-#     max_seq_len = 50,
-#     num_heads   = 4,
-#     ff_dim      = 256,
-#     num_layers  = 4
-# )
-
-# x = torch.randint(0, 1000, (2, 10))
-# logits = model(x)
-
-# print(f"Input shape  : {x.shape}")
-# print(f"Output shape : {logits.shape}")
-# print(f"\nTotal parameters: {sum(p.numel() for p in model.parameters()):,}")

@@ -1,32 +1,13 @@
-# AI Engineer Journey
+# AI Engineer Learning Journey
 
-Building AI systems from the ground up — one working project at a time.
+Building AI systems from scratch to get placed as an AI Engineer.
 
-Every folder is a session. Every file runs. Every README explains what I built, what I learned, and why it matters.
-
----
-
-## Sessions
-
-| # | Topic | Status | What I built |
-|---|-------|--------|--------------|
-| [01](01-transformers/) | Transformer Architecture | ✅ Complete | MiniGPT — GPT-style transformer from scratch in PyTorch |
-| [02](02-training/) | Training a Language Model | 🔜 Next | Train MiniGPT on real text; implement loss, optimizer, eval loop |
-| [03](03-rag/) | Retrieval-Augmented Generation | 📅 Planned | Build a RAG pipeline over a document corpus |
-| [04](04-finetuning/) | Fine-tuning | 📅 Planned | Fine-tune a pretrained model on a downstream task |
-
----
-
-## How to use this repo
-
-Each session folder is self-contained:
-- **Code** — runnable, no hidden dependencies
-- **README** — what it does, what I learned, how to run it
-
-Start at `01-transformers/` and follow the numbers.
-
----
+## Projects
+| # | Topic | What I built |
+|---|-------|-------------|
+| 01 | Tokenization | BPE exploration with tiktoken |
+| 02 | Embeddings | Semantic similarity with sentence transformers |
+| 03 | Transformers | MiniGPT from scratch in PyTorch |
 
 ## Stack
-
-Python · PyTorch · HuggingFace · (more to come)
+Python, PyTorch, HuggingFace Transformers
