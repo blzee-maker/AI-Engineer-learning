@@ -1,0 +1,31 @@
+# Dialogue Detection — does anyone actually speak in this passage?
+# Technique: few-shot + JSON mode (no prefill, so the loader passes
+# format="json" to Ollama and the output is grammar-constrained to valid JSON).
+
+name: dialogue_detection
+description: Detect whether a passage contains spoken dialogue and list each quoted line.
+technique: few-shot + json mode
+model: llama3.2
+temperature: 0
+
+system: |
+  You are a Dialogue Detection Engine for an audiobook pipeline.
+  Decide whether the passage contains spoken dialogue: words inside quotation
+  marks that a character says out loud. Narration and unspoken thoughts do
+  not count as dialogue.
+  Output ONLY a JSON object with these keys:
+  - "has_dialogue": true or false
+  - "quotes": a list of the quoted lines, copied exactly (empty list if none)
+  No markdown, no code fences, no explanation. JSON only.
+
+examples:
+  - input: |
+      Passage: "The rain fell all night on the empty street."
+    output: |
+      {"has_dialogue": false, "quotes": []}
+  - input: |
+      Passage: "'We leave at dawn,' said Mira. Tom nodded and picked up his pack."
+    output: |
+      {"has_dialogue": true, "quotes": ["We leave at dawn,"]}
+
+valid_keys: [has_dialogue, quotes]

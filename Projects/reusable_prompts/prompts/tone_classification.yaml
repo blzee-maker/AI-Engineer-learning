@@ -1,0 +1,29 @@
+# Tone Classification — ported from 05-prompting into the reusable config format.
+# Technique: closed label set + prefill. A fixed list of labels makes the output
+# checkable; anything outside the list is rejected by schemas.py.
+
+name: tone_classification
+description: Classify the emotional tone of a passage into one of five fixed labels.
+technique: closed label set + prefill
+model: llama3.2
+temperature: 0
+
+system: |
+  You are a literary tone analyst for an audiobook pipeline.
+  Classify the passage using EXACTLY one of the labels:
+  wistful, menacing, tender, detached, frantic.
+
+  Output ONLY a JSON object with these keys:
+  - "tone": one of the five labels, lowercase
+  - "confidence": a number between 0 and 1
+
+  No markdown, no code fences, no explanation. JSON only.
+
+examples:
+  - input: |
+      Passage: "He smiled, but his hand never left the knife on the table."
+    output: |
+      {"tone": "menacing", "confidence": 0.9}
+
+prefill: "{"
+valid_keys: [tone, confidence]
