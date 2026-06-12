@@ -16,5 +16,9 @@ Building AI systems from scratch to get placed as an AI Engineer.
 ## Points
 Combined few-shot+CoT still returned detached on a near-miss passage — diagnosed as the example not matching the test pattern, and reconsidered whether my own label was correct.
 
+Pronunciation flagging passed JSON parsing and schema validation yet still gave a wrong phonetic hint for "Saoirse" ("shur-SHEE-rah" instead of "SEER-sha") — structure ≠ correctness; catching wrong-but-well-formed output needs an eval set with ground-truth labels, not a schema check.
+
+temperature=0 gives deterministic sampling, but not necessarily deterministic output on cloud infrastructure, because floating-point execution order and serving variability can flip near-tied tokens.
+
 ## Stack
 Python, PyTorch, HuggingFace Transformers, tiktoken, sentence-transformers, Ollama, PyYAML
