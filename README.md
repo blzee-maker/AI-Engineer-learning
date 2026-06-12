@@ -12,6 +12,7 @@ Building AI systems from scratch to get placed as an AI Engineer.
 | [05](05-bert-vs-gpt/) | BERT vs GPT | Comparing encoder and decoder models with HuggingFace pipelines |
 | [06](05-prompting/) | Prompting | Few-shot, chain-of-thought and roles System and user tone classification with a local Llama 3.2 |
 | [07](Projects/reusable_prompts/) | Reusable Prompts | Prompt-as-data engine: YAML prompt configs (character extraction, dialogue detection, speaker attribution, pronunciation flagging, tone classification) run by one generic loader with JSON schema validation, on local Llama 3.2 |
+| [08](05-api-mechanics/) | API Mechanics | Same prompt through a cloud (Gemini 2.5 Flash) and a local (Ollama Llama 3.2) API, with temperature / max_tokens / determinism experiments side by side |
 
 ## Points
 Combined few-shot+CoT still returned detached on a near-miss passage — diagnosed as the example not matching the test pattern, and reconsidered whether my own label was correct.
@@ -21,4 +22,4 @@ Pronunciation flagging passed JSON parsing and schema validation yet still gave 
 temperature=0 gives deterministic sampling, but not necessarily deterministic output on cloud infrastructure, because floating-point execution order and serving variability can flip near-tied tokens.
 
 ## Stack
-Python, PyTorch, HuggingFace Transformers, tiktoken, sentence-transformers, Ollama, PyYAML
+Python, PyTorch, HuggingFace Transformers, tiktoken, sentence-transformers, Ollama, PyYAML, Gemini API (google-genai), python-dotenv
