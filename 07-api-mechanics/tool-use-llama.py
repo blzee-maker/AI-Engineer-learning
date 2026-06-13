@@ -57,7 +57,7 @@ response = ollama.chat(
     messages=[
         {
             "role": "user",
-            "content": f"How many dialogue lines are in this chapter?\n\n{CHAPTER}"
+            "content": f"What is the tone of this chapter?\n\n{CHAPTER}" # Switched with Question: How many dialogue lines are in this chapter?, To see how the model reacts when the tool is not able to handle the query.
         }
     ],
     tools=tools
